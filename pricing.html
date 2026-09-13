@@ -232,6 +232,7 @@
       <a href="pricing.html" style="color:var(--accent)">pricing</a>
       <a href="ai-pricing.html">ai services</a>
       <a href="index.html#contact">contact</a>
+      <a href="login.html" id="authNavLink">sign in</a>
     </nav>
   </header>
 
@@ -378,6 +379,17 @@
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         setAnnual(!sw.classList.contains('on'));
+      }
+    });
+  </script>
+  <script type="module">
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+    onAuthStateChanged(auth, (user) => {
+      const link = document.getElementById('authNavLink');
+      if (user) {
+        link.textContent = 'my account';
+        link.href = 'account.html';
       }
     });
   </script>
