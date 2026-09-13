@@ -1,33 +1,43 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null &&
+             request.auth.token.email in [
+               'pyaephyoaung@skybridge-businesssolution.com'
+             ];
+    }
+
     // Each customer's subscription record, keyed by their auth uid.
     match /customers/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
 
       // Customers may create their own record at signup, but only in the
       // default "no plan yet" state — activating a paid plan is done by
-      // Sky Bridge staff in the Firebase console until billing is wired up.
+      // an admin in admin.html (or the Firebase console) until a real
+      // payment gateway is wired up.
       allow create: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.plan == null
                     && request.resource.data.status == 'pending';
 
-      allow update, delete: if false;
+      allow update: if isAdmin();
+      allow delete: if false;
     }
 
     // A customer's submitted "please verify my payment" requests.
-    // Staff confirm the payment out of band, then activate the plan on the
-    // matching customers/{uid} document — customers cannot edit these
-    // themselves once submitted.
+    // Admins confirm the payment out of band in admin.html, which then
+    // activates the plan on the matching customers/{uid} document —
+    // customers cannot edit these themselves once submitted.
     match /subscriptionRequests/{requestId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.uid || isAdmin());
 
       allow create: if request.auth != null
                     && request.auth.uid == request.resource.data.uid
                     && request.resource.data.status == 'pending';
 
-      allow update, delete: if false;
+      allow update: if isAdmin();
+      allow delete: if false;
     }
   }
 }

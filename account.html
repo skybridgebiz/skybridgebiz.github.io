@@ -206,16 +206,11 @@
     import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
     const PLAN_LABELS = {
+      'it-starter': { name: 'Starter (IT Plan)', tagline: 'Essential IT care for small teams getting their foundation in order.' },
+      'it-professional': { name: 'Professional (IT Plan)', tagline: 'ERP-driven growth with cloud, network, and CCTV coverage in one plan.' },
       'ai-starter': { name: 'AI Starter', tagline: 'Managed AI content writing for small teams publishing regularly.' },
       'ai-growth': { name: 'AI Growth', tagline: 'Content + voice AI with light automation for scaling teams.' },
       'ai-enterprise': { name: 'AI Enterprise', tagline: 'Custom AI integrated directly into your ERP, CRM, or website.' },
-    };
-
-    const PLAN_NAMES = {
-      'it-starter': 'Starter (IT Plan)',
-      'it-professional': 'Professional (IT Plan)',
-      'ai-starter': 'AI Starter',
-      'ai-growth': 'AI Growth',
     };
 
     const PAYMENT_METHOD_NAMES = {
@@ -267,7 +262,7 @@
         listEl.innerHTML = '';
         snap.forEach((docSnap) => {
           const req = docSnap.data();
-          const planName = PLAN_NAMES[req.plan] || req.plan;
+          const planName = (PLAN_LABELS[req.plan] && PLAN_LABELS[req.plan].name) || req.plan;
           const methodName = PAYMENT_METHOD_NAMES[req.paymentMethod] || req.paymentMethod;
           const date = req.createdAt && typeof req.createdAt.toDate === 'function'
             ? req.createdAt.toDate().toLocaleDateString()
