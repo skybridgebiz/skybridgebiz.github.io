@@ -370,7 +370,7 @@
           checkoutContent.hidden = true;
           confirmState.hidden = false;
         } catch (err) {
-          errorEl.textContent = 'Could not submit your request. Please try again.';
+          errorEl.textContent = 'Could not submit your request (' + (err.code || err.message) + '). Please try again.';
           errorEl.hidden = false;
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit payment for verification';
