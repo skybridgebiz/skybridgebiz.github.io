@@ -263,7 +263,7 @@
           <span class="period">MMK / month</span>
         </div>
         <span class="note">Billed monthly &middot; cancel anytime</span>
-        <a class="plan-cta" href="mailto:info@skybridge-businesssolution.com?subject=Starter%20plan%20inquiry">Get started</a>
+        <a class="plan-cta checkout-link" data-plan="it-starter" href="checkout.html?plan=it-starter&billing=monthly">Get started</a>
         <ul class="plan-features">
           <li>Domain, DNS & business email setup</li>
           <li>Company website hosting & maintenance</li>
@@ -283,7 +283,7 @@
           <span class="period">MMK / month</span>
         </div>
         <span class="note">Billed monthly &middot; setup fee waived on annual plans</span>
-        <a class="plan-cta" href="mailto:info@skybridge-businesssolution.com?subject=Professional%20plan%20inquiry">Start with Professional</a>
+        <a class="plan-cta checkout-link" data-plan="it-professional" href="checkout.html?plan=it-professional&billing=monthly">Start with Professional</a>
         <ul class="plan-features">
           <li>Everything in Starter, plus:</li>
           <li>Odoo ERP support (sales, inventory, accounting, CRM)</li>
@@ -371,6 +371,9 @@
       });
       periods.forEach(el => {
         el.textContent = isAnnual ? 'MMK / month, billed yearly' : 'MMK / month';
+      });
+      document.querySelectorAll('.checkout-link').forEach(el => {
+        el.href = 'checkout.html?plan=' + el.dataset.plan + '&billing=' + (isAnnual ? 'annual' : 'monthly');
       });
     }
 

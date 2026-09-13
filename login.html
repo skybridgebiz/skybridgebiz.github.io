@@ -184,7 +184,7 @@
         </div>
         <button type="submit" class="submit-btn" id="submitBtn">Sign in</button>
       </form>
-      <p class="switch-auth">Don't have an account? <a href="signup.html">Sign up</a></p>
+      <p class="switch-auth">Don't have an account? <a href="signup.html" id="signupLink">Sign up</a></p>
     </div>
   </main>
 
@@ -201,6 +201,11 @@
     const noticeEl = document.getElementById('formNotice');
     const submitBtn = document.getElementById('submitBtn');
     const resetBtn = document.getElementById('resetPasswordBtn');
+
+    const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'account.html';
+    if (redirectTo !== 'account.html') {
+      document.getElementById('signupLink').href = 'signup.html?redirect=' + encodeURIComponent(redirectTo);
+    }
 
     function showError(message) {
       noticeEl.hidden = true;
@@ -237,7 +242,7 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = 'account.html';
+        window.location.href = redirectTo;
       } catch (err) {
         showError(friendlyError(err.code));
         submitBtn.disabled = false;

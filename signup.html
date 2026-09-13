@@ -162,7 +162,7 @@
         </div>
         <button type="submit" class="submit-btn" id="submitBtn">Create account</button>
       </form>
-      <p class="switch-auth">Already have an account? <a href="login.html">Sign in</a></p>
+      <p class="switch-auth">Already have an account? <a href="login.html" id="loginLink">Sign in</a></p>
     </div>
   </main>
 
@@ -178,6 +178,11 @@
     const form = document.getElementById('signupForm');
     const errorEl = document.getElementById('formError');
     const submitBtn = document.getElementById('submitBtn');
+
+    const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'account.html';
+    if (redirectTo !== 'account.html') {
+      document.getElementById('loginLink').href = 'login.html?redirect=' + encodeURIComponent(redirectTo);
+    }
 
     function showError(message) {
       errorEl.textContent = message;
@@ -221,7 +226,7 @@
           status: 'pending',
           createdAt: serverTimestamp(),
         });
-        window.location.href = 'account.html';
+        window.location.href = redirectTo;
       } catch (err) {
         showError(friendlyError(err.code));
         submitBtn.disabled = false;

@@ -262,7 +262,7 @@
           <span class="period">MMK / month</span>
         </div>
         <span class="note">Billed monthly &middot; cancel anytime</span>
-        <a class="plan-cta" href="mailto:info@skybridge-businesssolution.com?subject=AI%20Starter%20plan%20inquiry">Get started</a>
+        <a class="plan-cta checkout-link" data-plan="ai-starter" href="checkout.html?plan=ai-starter&billing=monthly">Get started</a>
         <ul class="plan-features">
           <li>Managed AI Content Writer (blog, social, ads, product copy)</li>
           <li>Up to 30 AI-generated pieces per month</li>
@@ -281,7 +281,7 @@
           <span class="period">MMK / month</span>
         </div>
         <span class="note">Billed monthly &middot; onboarding included</span>
-        <a class="plan-cta" href="mailto:info@skybridge-businesssolution.com?subject=AI%20Growth%20plan%20inquiry">Start with Growth</a>
+        <a class="plan-cta checkout-link" data-plan="ai-growth" href="checkout.html?plan=ai-growth&billing=monthly">Start with Growth</a>
         <ul class="plan-features">
           <li>Everything in AI Starter, plus:</li>
           <li>Managed AI Voice Assistant (calls, meeting notes, transcripts)</li>
@@ -366,6 +366,9 @@
       });
       periods.forEach(el => {
         el.textContent = isAnnual ? 'MMK / month, billed yearly' : 'MMK / month';
+      });
+      document.querySelectorAll('.checkout-link').forEach(el => {
+        el.href = 'checkout.html?plan=' + el.dataset.plan + '&billing=' + (isAnnual ? 'annual' : 'monthly');
       });
     }
 

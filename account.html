@@ -180,6 +180,13 @@
       </section>
 
       <section class="panel">
+        <h2>Payment requests</h2>
+        <ul class="detail-list" id="paymentRequestsList">
+          <li><span>No payment requests yet.</span><span></span></li>
+        </ul>
+      </section>
+
+      <section class="panel">
         <h2>Account details</h2>
         <ul class="detail-list">
           <li><span>Email</span><span id="detailEmail">—</span></li>
@@ -196,12 +203,25 @@
   <script type="module">
     import { auth, db } from "./firebase-config.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+    import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
     const PLAN_LABELS = {
       'ai-starter': { name: 'AI Starter', tagline: 'Managed AI content writing for small teams publishing regularly.' },
       'ai-growth': { name: 'AI Growth', tagline: 'Content + voice AI with light automation for scaling teams.' },
       'ai-enterprise': { name: 'AI Enterprise', tagline: 'Custom AI integrated directly into your ERP, CRM, or website.' },
+    };
+
+    const PLAN_NAMES = {
+      'it-starter': 'Starter (IT Plan)',
+      'it-professional': 'Professional (IT Plan)',
+      'ai-starter': 'AI Starter',
+      'ai-growth': 'AI Growth',
+    };
+
+    const PAYMENT_METHOD_NAMES = {
+      kbzpay: 'KBZPay',
+      wavepay: 'Wave Pay',
+      banktransfer: 'Bank transfer',
     };
 
     const loadingState = document.getElementById('loadingState');
@@ -233,6 +253,39 @@
       statusBadgeEl.className = 'status-badge status-' + status;
     }
 
+    async function renderPaymentRequests(uid) {
+      const listEl = document.getElementById('paymentRequestsList');
+      try {
+        const q = query(
+          collection(db, 'subscriptionRequests'),
+          where('uid', '==', uid),
+          orderBy('createdAt', 'desc')
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) return;
+
+        listEl.innerHTML = '';
+        snap.forEach((docSnap) => {
+          const req = docSnap.data();
+          const planName = PLAN_NAMES[req.plan] || req.plan;
+          const methodName = PAYMENT_METHOD_NAMES[req.paymentMethod] || req.paymentMethod;
+          const date = req.createdAt && typeof req.createdAt.toDate === 'function'
+            ? req.createdAt.toDate().toLocaleDateString()
+            : '';
+          const status = req.status || 'pending';
+
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span>${planName} &middot; ${methodName}${date ? ' &middot; ' + date : ''}</span>
+            <span class="status-badge status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+          `;
+          listEl.appendChild(li);
+        });
+      } catch (err) {
+        // Leave the "No payment requests yet." placeholder in place.
+      }
+    }
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = 'login.html';
@@ -252,6 +305,8 @@
       } catch (err) {
         renderSubscription({});
       }
+
+      await renderPaymentRequests(user.uid);
 
       loadingState.hidden = true;
       accountContent.hidden = false;

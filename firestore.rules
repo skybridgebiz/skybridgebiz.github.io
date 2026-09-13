@@ -15,5 +15,19 @@ service cloud.firestore {
 
       allow update, delete: if false;
     }
+
+    // A customer's submitted "please verify my payment" requests.
+    // Staff confirm the payment out of band, then activate the plan on the
+    // matching customers/{uid} document — customers cannot edit these
+    // themselves once submitted.
+    match /subscriptionRequests/{requestId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.uid
+                    && request.resource.data.status == 'pending';
+
+      allow update, delete: if false;
+    }
   }
 }

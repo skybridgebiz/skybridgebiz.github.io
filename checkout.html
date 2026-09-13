@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Choose a payment method and complete your Sky Bridge Business Solution subscription.">
+  <title>Checkout | Sky Bridge Business Solution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0d1a2b;
+      --panel-soft: #102138;
+      --text: #d8e2ef;
+      --heading: #eef6ff;
+      --muted: #8ca0bb;
+      --accent: #52e0c4;
+      --accent-soft: rgba(82, 224, 196, 0.12);
+      --line: rgba(140, 160, 187, 0.18);
+      --danger: #f28b82;
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 24px 0;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 17, 31, 0.86);
+      backdrop-filter: blur(18px);
+    }
+    .logo {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+    .nav-links { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 28px); font-weight: 800; text-transform: lowercase; }
+    .nav-links a:hover { color: var(--accent); }
+
+    main { width: min(620px, calc(100% - 40px)); margin: 0 auto; padding: 56px 0 100px; }
+
+    #loadingState, #errorState { text-align: center; color: var(--muted); padding: 80px 0; }
+    #errorState a { color: var(--accent); font-weight: 700; }
+
+    .checkout-intro { text-align: center; margin-bottom: 32px; }
+    .checkout-intro .intro { color: var(--accent); font-weight: 800; text-transform: lowercase; letter-spacing: 0.02em; }
+    .checkout-intro h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); color: var(--heading); margin: 12px 0 6px; font-weight: 900; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 30px 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+    .panel h2 { color: var(--heading); font-size: 1rem; margin: 0 0 18px; }
+
+    .order-row { display: flex; justify-content: space-between; align-items: baseline; }
+    .order-row .plan-name { font-size: 1.3rem; font-weight: 900; color: var(--heading); }
+    .order-row .plan-price { font-size: 1.3rem; font-weight: 900; color: var(--accent); }
+    .order-cycle { color: var(--muted); font-size: 0.88rem; margin-top: 6px; }
+
+    .method-options { display: flex; flex-direction: column; gap: 12px; }
+    .method-option {
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+    .method-option.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .method-option input { margin-right: 10px; }
+    .method-option span { font-weight: 700; color: var(--heading); }
+
+    .pay-instructions {
+      margin-top: 20px;
+      padding: 16px 18px;
+      background: var(--panel-soft);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .pay-instructions dl { margin: 10px 0 0; }
+    .pay-instructions dt { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 10px; }
+    .pay-instructions dd { margin: 2px 0 0; color: var(--heading); font-weight: 700; }
+
+    label { display: block; font-size: 0.86rem; font-weight: 700; color: var(--heading); margin: 20px 0 8px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      color: var(--heading);
+      font-family: inherit;
+      font-size: 0.96rem;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 800;
+      font-size: 0.96rem;
+      cursor: pointer;
+      margin-top: 22px;
+    }
+    .submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+    .form-error {
+      background: rgba(242, 139, 130, 0.12);
+      border: 1px solid rgba(242, 139, 130, 0.4);
+      color: var(--danger);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-top: 18px;
+    }
+
+    #confirmState { text-align: center; padding: 40px 0; }
+    #confirmState h2 { color: var(--heading); font-size: 1.4rem; margin: 16px 0 10px; }
+    #confirmState p { color: var(--muted); }
+    #confirmState .btn {
+      display: inline-block;
+      margin-top: 22px;
+      padding: 13px 24px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 800;
+    }
+
+    .site-footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html" aria-label="Sky Bridge Business Solution home">SB</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">home</a>
+      <a href="pricing.html">it plans</a>
+      <a href="ai-pricing.html">ai services</a>
+      <a href="account.html">my account</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="loadingState">Loading checkout...</div>
+
+    <div id="errorState" hidden>
+      <p>That plan couldn't be found. <a href="ai-pricing.html">Back to AI Services pricing</a></p>
+    </div>
+
+    <div id="checkoutContent" hidden>
+      <section class="checkout-intro">
+        <p class="intro">checkout</p>
+        <h1>Complete your subscription</h1>
+      </section>
+
+      <section class="panel">
+        <h2>Order summary</h2>
+        <div class="order-row">
+          <span class="plan-name" id="orderPlanName"></span>
+          <span class="plan-price" id="orderPlanPrice"></span>
+        </div>
+        <p class="order-cycle" id="orderCycle"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Choose a payment method</h2>
+        <div class="method-options" id="methodOptions">
+          <label class="method-option" data-method="kbzpay">
+            <input type="radio" name="method" value="kbzpay">
+            <span>KBZPay</span>
+          </label>
+          <label class="method-option" data-method="wavepay">
+            <input type="radio" name="method" value="wavepay">
+            <span>Wave Pay</span>
+          </label>
+          <label class="method-option" data-method="banktransfer">
+            <input type="radio" name="method" value="banktransfer">
+            <span>Bank transfer</span>
+          </label>
+        </div>
+
+        <div class="pay-instructions" id="payInstructions" hidden></div>
+
+        <form id="checkoutForm">
+          <label for="reference">Transaction reference or sender phone number</label>
+          <input type="text" id="reference" name="reference" placeholder="e.g. the phone number you paid from, or transfer reference" required>
+          <p class="form-error" id="formError" hidden></p>
+          <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit payment for verification</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="confirmState" hidden>
+      <p class="intro" style="color:var(--accent);font-weight:800;text-transform:lowercase;">request submitted</p>
+      <h2>We're verifying your payment</h2>
+      <p>We'll activate your plan once your payment is confirmed, usually within 24 hours. You can check the status anytime on your account page.</p>
+      <a class="btn" href="account.html">Go to my account</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright 2026 | Sky Bridge Business Solution</p>
+  </footer>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const PLANS = {
+      'it-starter': { name: 'Starter (IT Plan)', monthly: 150000, annual: 127500 },
+      'it-professional': { name: 'Professional (IT Plan)', monthly: 450000, annual: 382500 },
+      'ai-starter': { name: 'AI Starter', monthly: 80000, annual: 68000 },
+      'ai-growth': { name: 'AI Growth', monthly: 220000, annual: 187000 },
+    };
+
+    const PAYMENT_INSTRUCTIONS = {
+      kbzpay: {
+        label: 'KBZPay',
+        html: `
+          <dl>
+            <dt>Send to KBZPay number</dt><dd>09XXXXXXXXX (update with your real number)</dd>
+            <dt>Account name</dt><dd>Sky Bridge Business Solution</dd>
+          </dl>
+          <p style="margin-top:12px;">After sending, enter the phone number you paid from below.</p>
+        `,
+      },
+      wavepay: {
+        label: 'Wave Pay',
+        html: `
+          <dl>
+            <dt>Send to Wave Pay number</dt><dd>09XXXXXXXXX (update with your real number)</dd>
+            <dt>Account name</dt><dd>Sky Bridge Business Solution</dd>
+          </dl>
+          <p style="margin-top:12px;">After sending, enter the phone number you paid from below.</p>
+        `,
+      },
+      banktransfer: {
+        label: 'Bank transfer',
+        html: `
+          <dl>
+            <dt>Bank</dt><dd>Your Bank Name (update this)</dd>
+            <dt>Account name</dt><dd>Sky Bridge Business Solution</dd>
+            <dt>Account number</dt><dd>XXXXXXXXXXXXX (update with your real account number)</dd>
+          </dl>
+          <p style="margin-top:12px;">After transferring, enter your transfer reference number below.</p>
+        `,
+      },
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const planKey = params.get('plan');
+    const billing = params.get('billing') === 'annual' ? 'annual' : 'monthly';
+    const plan = PLANS[planKey];
+
+    const loadingState = document.getElementById('loadingState');
+    const errorState = document.getElementById('errorState');
+    const checkoutContent = document.getElementById('checkoutContent');
+    const confirmState = document.getElementById('confirmState');
+
+    if (!plan) {
+      loadingState.hidden = true;
+      errorState.hidden = false;
+    } else {
+      document.getElementById('orderPlanName').textContent = plan.name;
+      const amount = billing === 'annual' ? plan.annual : plan.monthly;
+      document.getElementById('orderPlanPrice').textContent = amount.toLocaleString() + ' MMK / month';
+      document.getElementById('orderCycle').textContent = billing === 'annual'
+        ? 'Billed monthly, on an annual plan'
+        : 'Billed monthly';
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          const redirectTarget = window.location.pathname.split('/').pop() + window.location.search;
+          window.location.href = 'login.html?redirect=' + encodeURIComponent(redirectTarget);
+          return;
+        }
+        loadingState.hidden = true;
+        checkoutContent.hidden = false;
+        setupForm(user, plan, amount, billing);
+      });
+    }
+
+    function setupForm(user, plan, amount, billing) {
+      const methodOptions = document.querySelectorAll('.method-option');
+      const payInstructions = document.getElementById('payInstructions');
+      const submitBtn = document.getElementById('submitBtn');
+      const errorEl = document.getElementById('formError');
+      let selectedMethod = null;
+
+      methodOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+          methodOptions.forEach((o) => o.classList.remove('selected'));
+          option.classList.add('selected');
+          option.querySelector('input').checked = true;
+          selectedMethod = option.dataset.method;
+          payInstructions.innerHTML = PAYMENT_INSTRUCTIONS[selectedMethod].html;
+          payInstructions.hidden = false;
+          submitBtn.disabled = false;
+        });
+      });
+
+      document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.hidden = true;
+
+        if (!selectedMethod) {
+          errorEl.textContent = 'Choose a payment method first.';
+          errorEl.hidden = false;
+          return;
+        }
+        const reference = document.getElementById('reference').value.trim();
+        if (!reference) {
+          errorEl.textContent = 'Enter your transaction reference or phone number.';
+          errorEl.hidden = false;
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+          await addDoc(collection(db, 'subscriptionRequests'), {
+            uid: user.uid,
+            email: user.email,
+            plan: planKey,
+            billing,
+            amount,
+            paymentMethod: selectedMethod,
+            reference,
+            status: 'pending',
+            createdAt: serverTimestamp(),
+          });
+          checkoutContent.hidden = true;
+          confirmState.hidden = false;
+        } catch (err) {
+          errorEl.textContent = 'Could not submit your request. Please try again.';
+          errorEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit payment for verification';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
