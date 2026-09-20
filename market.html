@@ -131,6 +131,25 @@
       width: 110px;
     }
     .stock-form input.wide { width: 220px; }
+    .trade-form select {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    .trade-warning {
+      background: rgba(240, 112, 138, 0.12);
+      border: 1px solid rgba(240, 112, 138, 0.4);
+      color: var(--down);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
     .button-small {
       background: var(--accent);
       color: #08111f;
@@ -221,6 +240,38 @@
         source.
       </p>
     </section>
+
+    <section class="panel" id="tradePanel" hidden>
+      <h2>trade <span class="refresh-note">binance</span></h2>
+      <p class="trade-warning" id="tradeWarning">
+        This places real orders on the connected Binance account. Confirm
+        the backend is pointed at the testnet before you trust it with
+        real funds — check with whoever deployed the trade functions.
+      </p>
+      <div class="quote-grid" id="balancesGrid"></div>
+      <p class="status-line" id="balancesStatus"></p>
+      <button type="button" class="button-small" id="refreshBalancesBtn" style="margin:14px 0 22px">refresh balances</button>
+      <form class="stock-form trade-form" id="tradeForm">
+        <input type="text" id="tradeSymbol" placeholder="BTCUSDT" aria-label="Trading pair">
+        <select id="tradeSide" aria-label="Side">
+          <option value="BUY">buy</option>
+          <option value="SELL">sell</option>
+        </select>
+        <select id="tradeType" aria-label="Order type">
+          <option value="MARKET">market</option>
+          <option value="LIMIT">limit</option>
+        </select>
+        <input type="text" id="tradeQuantity" placeholder="quantity" aria-label="Quantity">
+        <input type="text" id="tradePrice" placeholder="price (limit only)" aria-label="Limit price">
+        <button type="submit" class="button-small">place order</button>
+      </form>
+      <p class="status-line" id="tradeStatus"></p>
+      <p class="api-note">
+        Only visible to the site admin. Orders are signed and sent by a
+        Cloud Function that holds the Binance API key server-side — the
+        key itself never reaches this page.
+      </p>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -229,11 +280,15 @@
 
   <script type="module">
     import { getCryptoQuotes, getForexRates, getStockQuote } from "./assets/js/market-api.js";
-    import { auth, db } from "./firebase-config.js";
+    import { auth, db, functions } from "./firebase-config.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
     import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+    import { httpsCallable } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-functions.js";
 
+    const ADMIN_EMAIL = 'pyaephyoaung@skybridge-businesssolution.com';
     let currentUser = null;
+
+    const tradePanel = document.getElementById('tradePanel');
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
@@ -247,6 +302,10 @@
           if (savedKey) stockKeyInput.value = savedKey;
         } catch (_) { /* fall back to whatever localStorage already filled in */ }
       }
+
+      const isAdmin = !!user && user.email === ADMIN_EMAIL;
+      tradePanel.hidden = !isAdmin;
+      if (isAdmin) refreshBalances();
     });
 
     const CRYPTO_IDS = ["bitcoin", "ethereum", "tether", "binancecoin", "solana"];
@@ -357,6 +416,75 @@
       } catch (err) {
         stockStatus.textContent = `couldn't load stock quote: ${err.message}`;
         stockStatus.classList.add('error');
+      }
+    });
+
+    const getBinanceAccount = httpsCallable(functions, 'getBinanceAccount');
+    const placeBinanceOrder = httpsCallable(functions, 'placeBinanceOrder');
+
+    const balancesGrid = document.getElementById('balancesGrid');
+    const balancesStatus = document.getElementById('balancesStatus');
+    const refreshBalancesBtn = document.getElementById('refreshBalancesBtn');
+    const tradeForm = document.getElementById('tradeForm');
+    const tradeStatus = document.getElementById('tradeStatus');
+    const tradeWarning = document.getElementById('tradeWarning');
+
+    async function refreshBalances() {
+      balancesStatus.textContent = 'loading balances…';
+      balancesStatus.classList.remove('error');
+      try {
+        const result = await getBinanceAccount();
+        const { balances, baseUrl } = result.data;
+        tradeWarning.textContent = baseUrl && baseUrl.includes('testnet')
+          ? 'Connected to Binance TESTNET — orders use fake funds, safe to try.'
+          : 'Connected to Binance LIVE trading — orders use real funds.';
+        balancesGrid.innerHTML = balances.length
+          ? balances.map((b) => `
+              <div class="quote-card">
+                <div class="symbol">${b.asset}</div>
+                <div class="price">${parseFloat(b.free).toLocaleString(undefined, { maximumFractionDigits: 6 })}</div>
+                <div class="change flat">locked: ${b.locked}</div>
+              </div>`).join('')
+          : '';
+        balancesStatus.textContent = balances.length ? `updated ${new Date().toLocaleTimeString()}` : 'no balances found';
+      } catch (err) {
+        balancesStatus.textContent = `couldn't load balances: ${err.message}`;
+        balancesStatus.classList.add('error');
+      }
+    }
+
+    refreshBalancesBtn.addEventListener('click', refreshBalances);
+
+    tradeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const symbol = document.getElementById('tradeSymbol').value.trim().toUpperCase();
+      const side = document.getElementById('tradeSide').value;
+      const type = document.getElementById('tradeType').value;
+      const quantity = document.getElementById('tradeQuantity').value.trim();
+      const price = document.getElementById('tradePrice').value.trim();
+
+      if (!symbol || !quantity || (type === 'LIMIT' && !price)) {
+        tradeStatus.textContent = `fill in symbol and quantity${type === 'LIMIT' ? ', and price' : ''}`;
+        tradeStatus.classList.add('error');
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Place a ${side} ${type} order for ${quantity} ${symbol}${type === 'LIMIT' ? ' at ' + price : ''}? This sends a real order to Binance.`
+      );
+      if (!confirmed) return;
+
+      tradeStatus.textContent = 'placing order…';
+      tradeStatus.classList.remove('error');
+      try {
+        const payload = { symbol, side, type, quantity };
+        if (type === 'LIMIT') payload.price = price;
+        const result = await placeBinanceOrder(payload);
+        tradeStatus.textContent = `order placed: #${result.data.orderId} (${result.data.status})`;
+        refreshBalances();
+      } catch (err) {
+        tradeStatus.textContent = `order failed: ${err.message}`;
+        tradeStatus.classList.add('error');
       }
     });
   </script>

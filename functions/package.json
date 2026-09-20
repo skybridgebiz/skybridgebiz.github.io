@@ -1,0 +1,13 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions holding the Binance API secret server-side for the market dashboard's trade panel. Never runs in the browser.",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^5.1.1"
+  }
+}
