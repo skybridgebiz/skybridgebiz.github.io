@@ -214,9 +214,11 @@
       <p class="api-note">
         Stock quotes need a free personal key from
         <a href="https://finnhub.io/register" target="_blank" rel="noreferrer">finnhub.io</a>.
-        Your key is kept only in this browser tab (localStorage) — it is
-        never sent anywhere except directly to Finnhub, and never committed
-        to this site's source.
+        It's always kept in this browser's localStorage; if you're
+        <a href="login.html">signed in</a>, it's also saved to your account
+        in Firestore so it follows you across devices. Either way it's sent
+        nowhere but directly to Finnhub, and never committed to this site's
+        source.
       </p>
     </section>
   </main>
@@ -227,14 +229,23 @@
 
   <script type="module">
     import { getCryptoQuotes, getForexRates, getStockQuote } from "./assets/js/market-api.js";
-    import { auth } from "./firebase-config.js";
+    import { auth, db } from "./firebase-config.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-    onAuthStateChanged(auth, (user) => {
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
       const link = document.getElementById('authNavLink');
       if (user) {
         link.textContent = 'my account';
         link.href = 'account.html';
+        try {
+          const snap = await getDoc(doc(db, 'userSettings', user.uid));
+          const savedKey = snap.exists() ? snap.data().finnhubApiKey : null;
+          if (savedKey) stockKeyInput.value = savedKey;
+        } catch (_) { /* fall back to whatever localStorage already filled in */ }
       }
     });
 
@@ -326,6 +337,11 @@
       try {
         localStorage.setItem('sb_finnhub_key', apiKey);
       } catch (_) { /* ignore storage errors */ }
+      if (currentUser) {
+        try {
+          await setDoc(doc(db, 'userSettings', currentUser.uid), { finnhubApiKey: apiKey }, { merge: true });
+        } catch (_) { /* key is still saved locally even if the sync fails */ }
+      }
       stockStatus.textContent = 'loading…';
       stockStatus.classList.remove('error');
       try {

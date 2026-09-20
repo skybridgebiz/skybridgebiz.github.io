@@ -39,5 +39,11 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if false;
     }
+
+    // A user's own app preferences (e.g. their personal Finnhub API key for
+    // the market dashboard) — fully owned and editable by that user only.
+    match /userSettings/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }
