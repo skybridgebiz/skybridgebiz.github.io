@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="Live trader market dashboard from Sky Bridge Business Solution: crypto prices, forex rates, and stock quotes."
+  >
+  <title>Trader Market | Sky Bridge Business Solution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0d1a2b;
+      --panel-soft: #102138;
+      --text: #d8e2ef;
+      --heading: #eef6ff;
+      --muted: #8ca0bb;
+      --accent: #52e0c4;
+      --accent-soft: rgba(82, 224, 196, 0.12);
+      --line: rgba(140, 160, 187, 0.18);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
+      --up: #52e0c4;
+      --down: #f0708a;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 24px 0;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 17, 31, 0.86);
+      backdrop-filter: blur(18px);
+    }
+    .logo {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+    .nav-links { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 28px); font-weight: 800; text-transform: lowercase; }
+    .nav-links a:hover { color: var(--accent); }
+
+    main { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 20px 0 100px; }
+
+    .market-hero { text-align: center; padding: 56px 0 40px; }
+    .market-hero .intro { color: var(--accent); font-weight: 800; text-transform: lowercase; letter-spacing: 0.02em; }
+    .market-hero h1 { font-size: clamp(2rem, 4vw, 2.75rem); color: var(--heading); margin: 14px 0 16px; font-weight: 900; }
+    .market-hero p { max-width: 640px; margin: 0 auto; color: var(--muted); font-size: 1.02rem; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+    .panel h2 {
+      color: var(--heading);
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: lowercase;
+      margin: 0 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel h2 .refresh-note { color: var(--muted); font-size: 0.8rem; font-weight: 500; text-transform: none; }
+
+    .quote-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .quote-card {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .quote-card .symbol { color: var(--heading); font-weight: 800; font-size: 0.95rem; }
+    .quote-card .price { color: var(--heading); font-weight: 900; font-size: 1.4rem; margin: 6px 0; }
+    .quote-card .change { font-weight: 700; font-size: 0.85rem; }
+    .quote-card .change.up { color: var(--up); }
+    .quote-card .change.down { color: var(--down); }
+    .quote-card .change.flat { color: var(--muted); }
+
+    .forex-form, .stock-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .forex-form input, .stock-form input {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      width: 110px;
+    }
+    .stock-form input.wide { width: 220px; }
+    .button-small {
+      background: var(--accent);
+      color: #08111f;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-transform: lowercase;
+    }
+    .button-small:hover { opacity: 0.9; }
+
+    .status-line { color: var(--muted); font-size: 0.85rem; min-height: 1.2em; }
+    .status-line.error { color: var(--down); }
+
+    .rate-table { width: 100%; border-collapse: collapse; }
+    .rate-table td { padding: 8px 6px; border-bottom: 1px solid var(--line); }
+    .rate-table td.value { text-align: right; color: var(--heading); font-weight: 700; }
+
+    .api-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 10px;
+    }
+    .api-note a { color: var(--accent); }
+
+    .site-footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html" aria-label="Sky Bridge Business Solution home">SB</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">home</a>
+      <a href="index.html#services">services</a>
+      <a href="pricing.html">pricing</a>
+      <a href="market.html" style="color:var(--accent)">market</a>
+      <a href="index.html#contact">contact</a>
+      <a href="login.html" id="authNavLink">sign in</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="market-hero">
+      <p class="intro">trader market</p>
+      <h1>Live crypto, forex, and stock data.</h1>
+      <p>
+        A client-side market data dashboard powered by our lightweight
+        Trader Market API — free, key-less public feeds for crypto and
+        forex, plus optional stock quotes with your own Finnhub key.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>crypto <span class="refresh-note" id="cryptoRefreshNote">auto-refreshing every 30s</span></h2>
+      <div class="quote-grid" id="cryptoGrid"></div>
+      <p class="status-line" id="cryptoStatus"></p>
+    </section>
+
+    <section class="panel">
+      <h2>forex</h2>
+      <form class="forex-form" id="forexForm">
+        <input type="text" id="forexBase" value="USD" maxlength="3" aria-label="Base currency">
+        <input type="text" id="forexTargets" value="EUR,THB,JPY,SGD" aria-label="Target currencies (comma separated)" class="wide" style="width:220px">
+        <button type="submit" class="button-small">get rates</button>
+      </form>
+      <table class="rate-table" id="forexTable"></table>
+      <p class="status-line" id="forexStatus"></p>
+    </section>
+
+    <section class="panel">
+      <h2>stocks</h2>
+      <form class="stock-form" id="stockForm">
+        <input type="text" id="stockSymbol" placeholder="AAPL" aria-label="Stock symbol">
+        <input type="password" id="stockKey" placeholder="Finnhub API key" class="wide" aria-label="Finnhub API key">
+        <button type="submit" class="button-small">get quote</button>
+      </form>
+      <div class="quote-grid" id="stockGrid"></div>
+      <p class="status-line" id="stockStatus"></p>
+      <p class="api-note">
+        Stock quotes need a free personal key from
+        <a href="https://finnhub.io/register" target="_blank" rel="noreferrer">finnhub.io</a>.
+        Your key is kept only in this browser tab (localStorage) — it is
+        never sent anywhere except directly to Finnhub, and never committed
+        to this site's source.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright 2026 | Sky Bridge Business Solution</p>
+  </footer>
+
+  <script type="module">
+    import { getCryptoQuotes, getForexRates, getStockQuote } from "./assets/js/market-api.js";
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+    onAuthStateChanged(auth, (user) => {
+      const link = document.getElementById('authNavLink');
+      if (user) {
+        link.textContent = 'my account';
+        link.href = 'account.html';
+      }
+    });
+
+    const CRYPTO_IDS = ["bitcoin", "ethereum", "tether", "binancecoin", "solana"];
+    const cryptoGrid = document.getElementById('cryptoGrid');
+    const cryptoStatus = document.getElementById('cryptoStatus');
+
+    function formatChange(pct) {
+      if (pct === null || pct === undefined || Number.isNaN(pct)) return { text: '—', cls: 'flat' };
+      const cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+      const sign = pct > 0 ? '+' : '';
+      return { text: `${sign}${pct.toFixed(2)}%`, cls };
+    }
+
+    async function refreshCrypto() {
+      try {
+        const quotes = await getCryptoQuotes(CRYPTO_IDS, 'usd');
+        cryptoGrid.innerHTML = quotes.map((q) => {
+          const change = formatChange(q.changePercent24h);
+          const price = q.price === null ? '—' : q.price.toLocaleString(undefined, { maximumFractionDigits: q.price < 1 ? 4 : 2 });
+          return `
+            <div class="quote-card">
+              <div class="symbol">${q.id}</div>
+              <div class="price">$${price}</div>
+              <div class="change ${change.cls}">${change.text} (24h)</div>
+            </div>`;
+        }).join('');
+        cryptoStatus.textContent = `updated ${new Date().toLocaleTimeString()}`;
+        cryptoStatus.classList.remove('error');
+      } catch (err) {
+        cryptoStatus.textContent = `couldn't load crypto prices: ${err.message}`;
+        cryptoStatus.classList.add('error');
+      }
+    }
+
+    refreshCrypto();
+    setInterval(refreshCrypto, 30_000);
+
+    const forexForm = document.getElementById('forexForm');
+    const forexTable = document.getElementById('forexTable');
+    const forexStatus = document.getElementById('forexStatus');
+
+    async function loadForex(base, targets) {
+      try {
+        forexStatus.textContent = 'loading…';
+        forexStatus.classList.remove('error');
+        const result = await getForexRates(base, targets);
+        forexTable.innerHTML = Object.entries(result.rates)
+          .map(([code, rate]) => `<tr><td>${result.base} → ${code}</td><td class="value">${rate}</td></tr>`)
+          .join('');
+        forexStatus.textContent = `ECB reference rates, ${result.date}`;
+      } catch (err) {
+        forexStatus.textContent = `couldn't load forex rates: ${err.message}`;
+        forexStatus.classList.add('error');
+      }
+    }
+
+    forexForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const base = document.getElementById('forexBase').value.trim().toUpperCase();
+      const targets = document.getElementById('forexTargets').value
+        .split(',')
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean);
+      if (base && targets.length) loadForex(base, targets);
+    });
+
+    loadForex('USD', ['EUR', 'THB', 'JPY', 'SGD']);
+
+    const stockForm = document.getElementById('stockForm');
+    const stockGrid = document.getElementById('stockGrid');
+    const stockStatus = document.getElementById('stockStatus');
+    const stockKeyInput = document.getElementById('stockKey');
+
+    try {
+      const savedKey = localStorage.getItem('sb_finnhub_key');
+      if (savedKey) stockKeyInput.value = savedKey;
+    } catch (_) { /* localStorage may be unavailable in private mode */ }
+
+    stockForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const symbol = document.getElementById('stockSymbol').value.trim().toUpperCase();
+      const apiKey = stockKeyInput.value.trim();
+      if (!symbol || !apiKey) {
+        stockStatus.textContent = 'enter a symbol and your Finnhub API key';
+        stockStatus.classList.add('error');
+        return;
+      }
+      try {
+        localStorage.setItem('sb_finnhub_key', apiKey);
+      } catch (_) { /* ignore storage errors */ }
+      stockStatus.textContent = 'loading…';
+      stockStatus.classList.remove('error');
+      try {
+        const q = await getStockQuote(symbol, apiKey);
+        const change = formatChange(q.changePercent);
+        stockGrid.innerHTML = `
+          <div class="quote-card">
+            <div class="symbol">${q.symbol}</div>
+            <div class="price">$${q.price?.toFixed(2) ?? '—'}</div>
+            <div class="change ${change.cls}">${change.text} today</div>
+          </div>`;
+        stockStatus.textContent = `updated ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        stockStatus.textContent = `couldn't load stock quote: ${err.message}`;
+        stockStatus.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>
