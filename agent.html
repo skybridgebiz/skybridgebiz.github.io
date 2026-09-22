@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Agent Portal | Sky Bridge Business Solution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0d1a2b;
+      --panel-soft: #102138;
+      --text: #d8e2ef;
+      --heading: #eef6ff;
+      --muted: #8ca0bb;
+      --accent: #52e0c4;
+      --accent-soft: rgba(82, 224, 196, 0.12);
+      --line: rgba(140, 160, 187, 0.18);
+      --danger: #f28b82;
+      --danger-soft: rgba(242, 139, 130, 0.12);
+      --gold: #f0c052;
+      --gold-soft: rgba(240, 192, 82, 0.12);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      width: min(1000px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 24px 0;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 17, 31, 0.86);
+      backdrop-filter: blur(18px);
+    }
+    .logo {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+    .nav-links { display: flex; align-items: center; gap: clamp(12px, 2vw, 24px); font-weight: 800; text-transform: lowercase; font-size: 0.92rem; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links button {
+      background: none; border: none; font-family: inherit; font-weight: 800;
+      text-transform: lowercase; color: var(--muted); cursor: pointer; font-size: 0.92rem;
+    }
+    .nav-links button:hover { color: var(--accent); }
+
+    main { width: min(880px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 100px; }
+
+    #loadingState, #deniedState { text-align: center; color: var(--muted); padding: 80px 0; }
+
+    .intro-block .intro { color: var(--accent); font-weight: 800; text-transform: lowercase; letter-spacing: 0.02em; }
+    .intro-block h1 { font-size: clamp(1.5rem, 3.6vw, 2.1rem); color: var(--heading); margin: 12px 0 6px; font-weight: 900; }
+    .intro-block p { color: var(--muted); font-size: 0.94rem; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px 26px;
+      box-shadow: var(--shadow);
+      margin-top: 22px;
+    }
+    .panel h2 { color: var(--heading); font-size: 1.05rem; margin: 0 0 6px; }
+    .panel .panel-note { color: var(--muted); font-size: 0.85rem; margin: 0 0 16px; }
+
+    dl.settle-list { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    dl.settle-list .method { background: var(--panel-soft); border-radius: 10px; padding: 14px 16px; }
+    dl.settle-list dt { color: var(--accent); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    dl.settle-list dd { margin: 6px 0 0; color: var(--heading); font-weight: 700; font-size: 0.92rem; }
+    dl.settle-list dd.small { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+
+    label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--heading); margin-bottom: 6px; }
+    input[type="text"], input[type="tel"], select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      color: var(--heading);
+      font-family: inherit;
+      font-size: 0.92rem;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    .field { margin-bottom: 14px; }
+    .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+
+    .btn { padding: 11px 18px; border-radius: 8px; font-weight: 800; font-size: 0.88rem; border: none; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-secondary { background: var(--panel-soft); color: var(--heading); border: 1px solid var(--line); }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+    .form-error { background: var(--danger-soft); color: var(--danger); padding: 10px 12px; border-radius: 8px; font-size: 0.84rem; margin-top: 12px; }
+    .form-notice { background: var(--accent-soft); color: var(--accent); padding: 10px 12px; border-radius: 8px; font-size: 0.84rem; margin-top: 12px; }
+
+    .round-card { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 20px; }
+    .round-card:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .round-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+    .round-name { font-size: 1.05rem; font-weight: 900; color: var(--heading); }
+    .badge-status { padding: 3px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+    .badge-open { background: var(--accent-soft); color: var(--accent); }
+    .badge-drawn { background: var(--gold-soft); color: var(--gold); }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 14px 0; }
+    .stat-tile { background: var(--panel-soft); border-radius: 10px; padding: 12px; text-align: center; }
+    .stat-tile .num { font-size: 1.25rem; font-weight: 900; color: var(--heading); }
+    .stat-tile .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; }
+
+    .sub-panel { background: var(--panel-soft); border-radius: 10px; padding: 16px 18px; margin-top: 14px; }
+    .sub-panel h3 { margin: 0 0 12px; font-size: 0.9rem; color: var(--heading); }
+
+    table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+    table.data-table th { text-align: left; color: var(--muted); font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--line); font-size: 0.74rem; text-transform: uppercase; }
+    table.data-table td { padding: 8px; border-bottom: 1px solid var(--line); color: var(--text); }
+    .win-badge { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: var(--gold-soft); color: var(--gold); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+
+    .site-footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html" aria-label="Sky Bridge Business Solution home">SB</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">home</a>
+      <a href="lottery.html">lottery</a>
+      <button type="button" id="signOutBtn">sign out</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="loadingState">Loading agent portal...</div>
+
+    <div id="deniedState" hidden>
+      <p>This account isn't registered as a lottery agent. Ask the admin to add your email in the lottery admin panel.</p>
+    </div>
+
+    <div id="agentContent" hidden>
+      <section class="intro-block">
+        <p class="intro">agent portal</p>
+        <h1>Hi, <span id="agentNameLabel"></span></h1>
+        <p>Record ticket sales for your assigned inventory and track your settlement.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Settle your collections to</h2>
+        <p class="panel-note">After collecting cash or mobile-wallet payment from a buyer, remit your total collected sales here on your own schedule (update these with your real numbers before going live).</p>
+        <dl class="settle-list">
+          <div class="method">
+            <dt>KPay</dt>
+            <dd>09XXXXXXXXX</dd>
+            <dd class="small">Sky Bridge Business Solution</dd>
+          </div>
+          <div class="method">
+            <dt>WavePay</dt>
+            <dd>09XXXXXXXXX</dd>
+            <dd class="small">Sky Bridge Business Solution</dd>
+          </div>
+          <div class="method">
+            <dt>MM Bank</dt>
+            <dd>XXXXXXXXXXXXX</dd>
+            <dd class="small">Sky Bridge Business Solution</dd>
+          </div>
+          <div class="method">
+            <dt>THB Bank</dt>
+            <dd>XXXXXXXXXXXXX</dd>
+            <dd class="small">Sky Bridge Business Solution</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="panel">
+        <h2>Your rounds</h2>
+        <p class="panel-note">Only rounds where you've been assigned tickets show up here.</p>
+        <div id="roundsEmpty" class="panel-note" hidden>You don't have any assigned tickets yet — ask the admin to assign you some.</div>
+        <div id="roundList"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright 2026 | Sky Bridge Business Solution</p>
+  </footer>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import {
+      collection, doc, getDoc, getDocs, setDoc, updateDoc,
+      query, where, serverTimestamp, writeBatch, increment, getCountFromServer,
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const PAYMENT_METHODS = [
+      { value: 'kpay', label: 'KPay' },
+      { value: 'wavepay', label: 'WavePay' },
+      { value: 'mmbank', label: 'MM Bank' },
+      { value: 'thbbank', label: 'THB Bank' },
+    ];
+
+    const loadingState = document.getElementById('loadingState');
+    const deniedState = document.getElementById('deniedState');
+    const agentContent = document.getElementById('agentContent');
+    const roundList = document.getElementById('roundList');
+    const roundsEmpty = document.getElementById('roundsEmpty');
+    const signOutBtn = document.getElementById('signOutBtn');
+
+    let myEmail = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html?redirect=agent.html';
+        return;
+      }
+      myEmail = user.email;
+      const agentSnap = await getDoc(doc(db, 'agents', myEmail));
+      if (!agentSnap.exists() || agentSnap.data().active !== true) {
+        loadingState.hidden = true;
+        deniedState.hidden = false;
+        return;
+      }
+      document.getElementById('agentNameLabel').textContent = agentSnap.data().name || myEmail;
+      await loadMyRounds();
+      loadingState.hidden = true;
+      agentContent.hidden = false;
+    });
+
+    signOutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    });
+
+    async function loadMyRounds() {
+      const allRoundsSnap = await getDocs(collection(db, 'lotteryRounds'));
+      const rounds = allRoundsSnap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((r) => r.ticketsGenerated);
+
+      const withInventory = [];
+      for (const round of rounds) {
+        const [assigned, sold] = await Promise.all([
+          countMine(round.id, 'assigned'),
+          countMine(round.id, 'sold'),
+        ]);
+        if (assigned + sold > 0) withInventory.push({ round, assigned, sold });
+      }
+
+      roundList.innerHTML = '';
+      roundsEmpty.hidden = withInventory.length > 0;
+      withInventory
+        .sort((a, b) => (b.round.createdAt?.toMillis?.() || 0) - (a.round.createdAt?.toMillis?.() || 0))
+        .forEach(({ round, assigned, sold }) => roundList.appendChild(renderRoundCard(round, assigned, sold)));
+    }
+
+    async function countMine(roundId, status) {
+      const q = query(
+        collection(db, 'lotteryTickets'),
+        where('roundId', '==', roundId),
+        where('agentId', '==', myEmail),
+        where('status', '==', status)
+      );
+      const snap = await getCountFromServer(q);
+      return snap.data().count;
+    }
+
+    function renderRoundCard(round, assignedCount, soldCount) {
+      const card = document.createElement('div');
+      card.className = 'round-card';
+      card.innerHTML = `
+        <div class="round-top">
+          <span class="round-name">${round.name}</span>
+          <span class="badge-status ${round.status === 'drawn' ? 'badge-drawn' : 'badge-open'}">${round.status}</span>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-tile"><div class="num">${assignedCount}</div><div class="lbl">unsold, in your hand</div></div>
+          <div class="stat-tile"><div class="num">${soldCount}</div><div class="lbl">sold by you</div></div>
+          <div class="stat-tile"><div class="num">${Number(round.ticketPriceMMK).toLocaleString()}</div><div class="lbl">MMK / ticket</div></div>
+        </div>
+        <div class="sub-panel sell-panel" ${round.status === 'drawn' ? 'hidden' : ''}>
+          <h3>Record a sale</h3>
+          <p class="panel-note">Enter the code of the physical/assigned ticket you handed to the buyer.</p>
+          <div class="field-row">
+            <div class="field">
+              <label>Ticket code</label>
+              <input type="text" class="sell-code" placeholder="e.g. A00042" maxlength="6">
+            </div>
+            <div class="field">
+              <label>Buyer name</label>
+              <input type="text" class="sell-buyer-name">
+            </div>
+            <div class="field">
+              <label>Buyer phone</label>
+              <input type="tel" class="sell-buyer-phone">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Payment method</label>
+              <select class="sell-method">${PAYMENT_METHODS.map((m) => `<option value="${m.value}">${m.label}</option>`).join('')}</select>
+            </div>
+            <div class="field">
+              <label>Reference (phone paid from / transaction ID)</label>
+              <input type="text" class="sell-reference">
+            </div>
+          </div>
+          <div class="btn-row"><button type="button" class="btn btn-primary sell-btn">Mark as sold</button></div>
+          <p class="form-error sell-error" hidden></p>
+          <p class="form-notice sell-notice" hidden></p>
+        </div>
+        <div class="sub-panel">
+          <h3>Your sales for this round</h3>
+          <div class="btn-row"><button type="button" class="btn btn-secondary sales-btn">Load / refresh</button></div>
+          <div class="sales-area"></div>
+        </div>
+      `;
+
+      card.querySelector('.sales-btn').addEventListener('click', () => loadMySales(round, card.querySelector('.sales-area')));
+
+      const sellPanel = card.querySelector('.sell-panel');
+      if (sellPanel) {
+        sellPanel.querySelector('.sell-btn').addEventListener('click', async () => {
+          const btn = sellPanel.querySelector('.sell-btn');
+          const errorEl = sellPanel.querySelector('.sell-error');
+          const noticeEl = sellPanel.querySelector('.sell-notice');
+          errorEl.hidden = true;
+          noticeEl.hidden = true;
+
+          const code = sellPanel.querySelector('.sell-code').value.trim().toUpperCase();
+          const buyerName = sellPanel.querySelector('.sell-buyer-name').value.trim();
+          const buyerPhone = sellPanel.querySelector('.sell-buyer-phone').value.trim();
+          const paymentMethod = sellPanel.querySelector('.sell-method').value;
+          const reference = sellPanel.querySelector('.sell-reference').value.trim();
+
+          if (!/^[A-Z]\d{5}$/.test(code) || !buyerName || !buyerPhone || !reference) {
+            errorEl.textContent = 'Enter a valid ticket code (one letter + 5 digits), buyer name, phone, and payment reference.';
+            errorEl.hidden = false;
+            return;
+          }
+
+          btn.disabled = true;
+          try {
+            await recordSale(round, code, { buyerName, buyerPhone, paymentMethod, reference });
+            noticeEl.textContent = `Ticket ${code} marked as sold.`;
+            noticeEl.hidden = false;
+            sellPanel.querySelector('.sell-code').value = '';
+            sellPanel.querySelector('.sell-buyer-name').value = '';
+            sellPanel.querySelector('.sell-buyer-phone').value = '';
+            sellPanel.querySelector('.sell-reference').value = '';
+            await loadMyRounds();
+          } catch (err) {
+            errorEl.textContent = err.message || ('Could not record sale (' + (err.code || '') + ').');
+            errorEl.hidden = false;
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      }
+
+      return card;
+    }
+
+    async function recordSale(round, code, sale) {
+      const ticketId = `${round.id}_${code}`;
+      const ticketRef = doc(db, 'lotteryTickets', ticketId);
+      const ticketSnap = await getDoc(ticketRef);
+      if (!ticketSnap.exists()) throw new Error(`No ticket ${code} in this round.`);
+      const ticket = ticketSnap.data();
+      if (ticket.agentId !== myEmail) throw new Error(`Ticket ${code} isn't assigned to you.`);
+      if (ticket.status !== 'assigned') throw new Error(`Ticket ${code} is already ${ticket.status}.`);
+
+      const batch = writeBatch(db);
+      batch.update(ticketRef, {
+        status: 'sold',
+        buyerName: sale.buyerName,
+        buyerPhone: sale.buyerPhone,
+        paymentMethod: sale.paymentMethod,
+        reference: sale.reference,
+        soldAt: serverTimestamp(),
+      });
+      batch.update(doc(db, 'ticketStatus', ticketId), { status: 'sold', updatedAt: serverTimestamp() });
+      batch.set(doc(db, 'agentSales', `${round.id}_${myEmail}`), {
+        roundId: round.id,
+        agentId: myEmail,
+        agentName: ticket.agentName || myEmail,
+        ticketsSold: increment(1),
+        revenueMMK: increment(Number(round.ticketPriceMMK) || 0),
+      }, { merge: true });
+      await batch.commit();
+    }
+
+    async function loadMySales(round, container) {
+      container.innerHTML = '<p class="panel-note">Loading…</p>';
+      const q = query(
+        collection(db, 'lotteryTickets'),
+        where('roundId', '==', round.id),
+        where('agentId', '==', myEmail),
+        where('status', '==', 'sold')
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        container.innerHTML = '<p class="panel-note">No sales recorded yet.</p>';
+        return;
+      }
+      const rows = snap.docs.map((d) => d.data()).sort((a, b) => a.code.localeCompare(b.code));
+      container.innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>Code</th><th>Buyer</th><th>Payment</th><th>Reference</th></tr></thead>
+          <tbody>
+            ${rows.map((r) => `
+              <tr>
+                <td>${r.code}${r.isWinner ? `<span class="win-badge">${r.tier}</span>` : ''}</td>
+                <td>${r.buyerName} (${r.buyerPhone})</td>
+                <td>${r.paymentMethod}</td>
+                <td>${r.reference}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  </script>
+</body>
+</html>

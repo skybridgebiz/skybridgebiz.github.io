@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Lottery Admin | Sky Bridge Business Solution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0d1a2b;
+      --panel-soft: #102138;
+      --text: #d8e2ef;
+      --heading: #eef6ff;
+      --muted: #8ca0bb;
+      --accent: #52e0c4;
+      --accent-soft: rgba(82, 224, 196, 0.12);
+      --line: rgba(140, 160, 187, 0.18);
+      --danger: #f28b82;
+      --danger-soft: rgba(242, 139, 130, 0.12);
+      --gold: #f0c052;
+      --gold-soft: rgba(240, 192, 82, 0.12);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 24px 0;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 17, 31, 0.86);
+      backdrop-filter: blur(18px);
+    }
+    .logo {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+    .nav-links { display: flex; align-items: center; gap: clamp(12px, 2vw, 24px); font-weight: 800; text-transform: lowercase; font-size: 0.92rem; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links button {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-weight: 800;
+      text-transform: lowercase;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+    .nav-links button:hover { color: var(--accent); }
+
+    main { width: min(980px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 100px; }
+
+    #loadingState, #deniedState { text-align: center; color: var(--muted); padding: 80px 0; }
+
+    .admin-intro .intro { color: var(--accent); font-weight: 800; text-transform: lowercase; letter-spacing: 0.02em; }
+    .admin-intro h1 { font-size: clamp(1.5rem, 3.6vw, 2.1rem); color: var(--heading); margin: 12px 0 6px; font-weight: 900; }
+    .admin-intro p { color: var(--muted); font-size: 0.94rem; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 26px 26px;
+      box-shadow: var(--shadow);
+      margin-top: 24px;
+    }
+    .panel h2 { color: var(--heading); font-size: 1.05rem; margin: 0 0 6px; }
+    .panel .panel-note { color: var(--muted); font-size: 0.85rem; margin: 0 0 18px; }
+
+    label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--heading); margin-bottom: 6px; }
+    input[type="text"], input[type="number"], input[type="date"], input[type="email"], select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      color: var(--heading);
+      font-family: inherit;
+      font-size: 0.92rem;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    .field { margin-bottom: 16px; }
+    .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+
+    .prize-row { display: grid; grid-template-columns: 1fr 160px 36px; gap: 10px; margin-bottom: 10px; align-items: center; }
+    .icon-btn {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: none;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+    .icon-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .btn {
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-secondary { background: var(--panel-soft); color: var(--heading); border: 1px solid var(--line); }
+    .btn-danger { background: var(--danger-soft); color: var(--danger); }
+    .btn-gold { background: var(--gold); color: #2b2205; }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn-block { width: 100%; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+    .form-error { background: var(--danger-soft); color: var(--danger); padding: 10px 12px; border-radius: 8px; font-size: 0.84rem; margin-top: 12px; }
+    .form-notice { background: var(--accent-soft); color: var(--accent); padding: 10px 12px; border-radius: 8px; font-size: 0.84rem; margin-top: 12px; }
+
+    /* agents */
+    .agent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+    .agent-row:first-of-type { border-top: none; }
+    .agent-name { font-weight: 700; color: var(--heading); }
+    .agent-email { color: var(--muted); font-size: 0.82rem; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; text-transform: lowercase; }
+    .badge-active { background: var(--accent-soft); color: var(--accent); }
+    .badge-inactive { background: var(--danger-soft); color: var(--danger); }
+
+    /* rounds */
+    #roundList { margin-top: 18px; }
+    .round-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .round-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+    .round-name { font-size: 1.15rem; font-weight: 900; color: var(--heading); }
+    .badge-status { padding: 4px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-draft { background: var(--panel-soft); color: var(--muted); }
+    .badge-open { background: var(--accent-soft); color: var(--accent); }
+    .badge-drawn { background: var(--gold-soft); color: var(--gold); }
+
+    .round-meta-list { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 18px; }
+    .round-meta-list li { font-size: 0.85rem; color: var(--muted); }
+    .round-meta-list li span { color: var(--heading); font-weight: 700; }
+
+    .round-detail { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 20px; display: none; }
+    .round-detail.open { display: block; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat-tile { background: var(--panel-soft); border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-tile .num { font-size: 1.4rem; font-weight: 900; color: var(--heading); }
+    .stat-tile .lbl { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+
+    .sub-panel { background: var(--panel-soft); border-radius: 10px; padding: 16px 18px; margin-top: 14px; }
+    .sub-panel h3 { margin: 0 0 12px; font-size: 0.92rem; color: var(--heading); }
+
+    table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+    table.data-table th { text-align: left; color: var(--muted); font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--line); font-size: 0.76rem; text-transform: uppercase; }
+    table.data-table td { padding: 8px; border-bottom: 1px solid var(--line); color: var(--text); }
+    table.data-table td.win { color: var(--gold); font-weight: 800; }
+
+    .tier-draw-row { display: grid; grid-template-columns: 1fr 140px auto; gap: 10px; margin-bottom: 10px; align-items: center; }
+
+    .site-footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html" aria-label="Sky Bridge Business Solution home">SB</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">home</a>
+      <a href="admin.html">subscriptions</a>
+      <a href="lottery-admin.html" style="color:var(--accent)">lottery admin</a>
+      <a href="account.html">my account</a>
+      <button type="button" id="signOutBtn">sign out</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="loadingState">Loading lottery admin...</div>
+
+    <div id="deniedState" hidden>
+      <p>You don't have admin access on this account.</p>
+    </div>
+
+    <div id="adminContent" hidden>
+      <section class="admin-intro">
+        <p class="intro">lottery admin</p>
+        <h1>Rounds, agents & the draw</h1>
+        <p>Create a round, generate tickets (letter + 5-digit code), hand out inventory to agents, and run the draw.</p>
+        <p class="panel-note" style="margin-top:8px;">First time using a new query here? If the browser console shows a "query requires an index" error, open the link it prints — it's a one-click, one-time index creation in the Firebase console.</p>
+      </section>
+
+      <!-- Create round -->
+      <section class="panel">
+        <h2>Create a new round</h2>
+        <p class="panel-note">Tickets are formatted as a letter series plus a 5-digit number, e.g. A00001&nbsp;&ndash;&nbsp;A10000.</p>
+        <form id="roundForm">
+          <div class="field-row">
+            <div class="field">
+              <label for="roundName">Round name</label>
+              <input type="text" id="roundName" placeholder="e.g. September Draw" required>
+            </div>
+            <div class="field">
+              <label for="ticketPrice">Ticket price (MMK)</label>
+              <input type="number" id="ticketPrice" min="0" step="100" value="1000" required>
+            </div>
+            <div class="field">
+              <label for="drawDate">Draw date</label>
+              <input type="date" id="drawDate" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="seriesLetters">Series letter(s)</label>
+              <input type="text" id="seriesLetters" placeholder="A or A,B,C" value="A" required>
+            </div>
+            <div class="field">
+              <label for="numbersPerSeries">Numbers per series (max 99999)</label>
+              <input type="number" id="numbersPerSeries" min="1" max="99999" value="10000" required>
+            </div>
+          </div>
+
+          <label>Prize tiers</label>
+          <div id="prizeTierRows"></div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" id="addTierBtn">+ Add prize tier</button>
+          </div>
+
+          <p class="form-error" id="roundFormError" hidden></p>
+          <p class="form-notice" id="roundFormNotice" hidden></p>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary" id="roundSubmitBtn">Create round</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Agents -->
+      <section class="panel">
+        <h2>Agents</h2>
+        <p class="panel-note">Invite an agent by the email they'll sign in with (see login.html / signup.html). No extra password setup needed here — it's their normal site account.</p>
+        <form id="agentForm">
+          <div class="field-row">
+            <div class="field">
+              <label for="agentEmail">Agent email</label>
+              <input type="email" id="agentEmail" required>
+            </div>
+            <div class="field">
+              <label for="agentName">Agent name</label>
+              <input type="text" id="agentName" required>
+            </div>
+            <div class="field">
+              <label for="agentPhone">Phone</label>
+              <input type="text" id="agentPhone">
+            </div>
+          </div>
+          <p class="form-error" id="agentFormError" hidden></p>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary" id="agentSubmitBtn">Invite agent</button>
+          </div>
+        </form>
+        <div id="agentList" style="margin-top:18px;"></div>
+      </section>
+
+      <!-- Rounds -->
+      <section style="margin-top: 34px;">
+        <h2 style="color: var(--heading); font-size: 1.2rem;">Rounds</h2>
+        <div id="roundsEmpty" class="panel-note" style="margin-top:10px;">No rounds yet — create one above.</div>
+        <div id="roundList"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright 2026 | Sky Bridge Business Solution</p>
+  </footer>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import {
+      collection, doc, addDoc, getDoc, getDocs, setDoc, updateDoc,
+      query, where, limit, serverTimestamp, writeBatch, getCountFromServer,
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const ADMIN_EMAILS = ['pyaephyoaung@skybridge-businesssolution.com'];
+    const PAYMENT_METHOD_NAMES = { kpay: 'KPay', wavepay: 'WavePay', mmbank: 'MM Bank', thbbank: 'THB Bank' };
+
+    let currentAdminEmail = null;
+    let agentsCache = []; // active + inactive, for the assign picker + agent list
+
+    const loadingState = document.getElementById('loadingState');
+    const deniedState = document.getElementById('deniedState');
+    const adminContent = document.getElementById('adminContent');
+    const signOutBtn = document.getElementById('signOutBtn');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html?redirect=lottery-admin.html';
+        return;
+      }
+      if (!ADMIN_EMAILS.includes(user.email)) {
+        loadingState.hidden = true;
+        deniedState.hidden = false;
+        return;
+      }
+      currentAdminEmail = user.email;
+      await loadAgents();
+      await loadRounds();
+      loadingState.hidden = true;
+      adminContent.hidden = false;
+    });
+
+    signOutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    });
+
+    /* ---------------- Prize tier rows (round creation form) ---------------- */
+
+    const prizeTierRows = document.getElementById('prizeTierRows');
+
+    function addTierRow(label = '', amount = '') {
+      const row = document.createElement('div');
+      row.className = 'prize-row';
+      row.innerHTML = `
+        <input type="text" class="tier-label" placeholder="e.g. 1st Prize" value="${label}">
+        <input type="number" class="tier-amount" placeholder="Amount (MMK)" min="0" step="1000" value="${amount}">
+        <button type="button" class="icon-btn remove-tier" title="Remove tier">&times;</button>
+      `;
+      row.querySelector('.remove-tier').addEventListener('click', () => {
+        if (prizeTierRows.children.length > 1) row.remove();
+      });
+      prizeTierRows.appendChild(row);
+    }
+    addTierRow('1st Prize', 1000000);
+
+    document.getElementById('addTierBtn').addEventListener('click', () => addTierRow());
+
+    /* ---------------- Create round ---------------- */
+
+    const roundForm = document.getElementById('roundForm');
+    const roundFormError = document.getElementById('roundFormError');
+    const roundFormNotice = document.getElementById('roundFormNotice');
+    const roundSubmitBtn = document.getElementById('roundSubmitBtn');
+
+    roundForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      roundFormError.hidden = true;
+      roundFormNotice.hidden = true;
+
+      const name = document.getElementById('roundName').value.trim();
+      const ticketPriceMMK = Number(document.getElementById('ticketPrice').value);
+      const drawDate = document.getElementById('drawDate').value;
+      const numbersPerSeries = Number(document.getElementById('numbersPerSeries').value);
+      const seriesLetters = [...new Set(
+        document.getElementById('seriesLetters').value
+          .split(',')
+          .map((s) => s.trim().toUpperCase())
+          .filter((s) => /^[A-Z]$/.test(s))
+      )];
+      const prizeTiers = [...prizeTierRows.querySelectorAll('.prize-row')].map((row) => ({
+        label: row.querySelector('.tier-label').value.trim(),
+        amount: Number(row.querySelector('.tier-amount').value) || 0,
+      })).filter((t) => t.label);
+
+      if (!name || !drawDate || !seriesLetters.length || !numbersPerSeries || !prizeTiers.length) {
+        roundFormError.textContent = 'Fill in a name, draw date, at least one series letter (A-Z), numbers per series, and at least one prize tier.';
+        roundFormError.hidden = false;
+        return;
+      }
+      if (numbersPerSeries > 99999) {
+        roundFormError.textContent = 'Numbers per series can be at most 99999 (5 digits).';
+        roundFormError.hidden = false;
+        return;
+      }
+
+      roundSubmitBtn.disabled = true;
+      try {
+        await addDoc(collection(db, 'lotteryRounds'), {
+          name, ticketPriceMMK, drawDate, seriesLetters, numbersPerSeries, prizeTiers,
+          status: 'draft',
+          ticketsGenerated: false,
+          ticketCount: 0,
+          winningCodes: [],
+          createdBy: currentAdminEmail,
+          createdAt: serverTimestamp(),
+        });
+        roundForm.reset();
+        prizeTierRows.innerHTML = '';
+        addTierRow('1st Prize', 1000000);
+        document.getElementById('seriesLetters').value = 'A';
+        document.getElementById('numbersPerSeries').value = 10000;
+        document.getElementById('ticketPrice').value = 1000;
+        roundFormNotice.textContent = 'Round created. Scroll down to generate its tickets.';
+        roundFormNotice.hidden = false;
+        await loadRounds();
+      } catch (err) {
+        roundFormError.textContent = 'Could not create round (' + (err.code || err.message) + ').';
+        roundFormError.hidden = false;
+      } finally {
+        roundSubmitBtn.disabled = false;
+      }
+    });
+
+    /* ---------------- Agents ---------------- */
+
+    const agentForm = document.getElementById('agentForm');
+    const agentFormError = document.getElementById('agentFormError');
+    const agentSubmitBtn = document.getElementById('agentSubmitBtn');
+    const agentList = document.getElementById('agentList');
+
+    agentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      agentFormError.hidden = true;
+      const email = document.getElementById('agentEmail').value.trim().toLowerCase();
+      const name = document.getElementById('agentName').value.trim();
+      const phone = document.getElementById('agentPhone').value.trim();
+      if (!email || !name) {
+        agentFormError.textContent = 'Enter the agent\'s email and name.';
+        agentFormError.hidden = false;
+        return;
+      }
+      agentSubmitBtn.disabled = true;
+      try {
+        await setDoc(doc(db, 'agents', email), {
+          email, name, phone: phone || null, active: true,
+          invitedBy: currentAdminEmail, createdAt: serverTimestamp(),
+        }, { merge: true });
+        agentForm.reset();
+        await loadAgents();
+        renderAgentList();
+      } catch (err) {
+        agentFormError.textContent = 'Could not invite agent (' + (err.code || err.message) + ').';
+        agentFormError.hidden = false;
+      } finally {
+        agentSubmitBtn.disabled = false;
+      }
+    });
+
+    async function loadAgents() {
+      const snap = await getDocs(collection(db, 'agents'));
+      agentsCache = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      renderAgentList();
+    }
+
+    function renderAgentList() {
+      if (!agentsCache.length) {
+        agentList.innerHTML = '<p class="panel-note">No agents invited yet.</p>';
+        return;
+      }
+      agentList.innerHTML = '';
+      agentsCache.forEach((agent) => {
+        const row = document.createElement('div');
+        row.className = 'agent-row';
+        row.innerHTML = `
+          <div>
+            <span class="agent-name">${agent.name}</span>
+            <span class="badge ${agent.active ? 'badge-active' : 'badge-inactive'}">${agent.active ? 'active' : 'inactive'}</span>
+            <div class="agent-email">${agent.email}${agent.phone ? ' · ' + agent.phone : ''}</div>
+          </div>
+          <button type="button" class="btn btn-secondary toggle-active-btn">${agent.active ? 'Deactivate' : 'Activate'}</button>
+        `;
+        row.querySelector('.toggle-active-btn').addEventListener('click', async (ev) => {
+          ev.target.disabled = true;
+          try {
+            await updateDoc(doc(db, 'agents', agent.id), { active: !agent.active });
+            await loadAgents();
+          } catch (err) {
+            alert('Could not update agent (' + (err.code || err.message) + ').');
+            ev.target.disabled = false;
+          }
+        });
+        agentList.appendChild(row);
+      });
+    }
+
+    /* ---------------- Rounds list ---------------- */
+
+    const roundList = document.getElementById('roundList');
+    const roundsEmpty = document.getElementById('roundsEmpty');
+    let roundsCache = [];
+
+    async function loadRounds() {
+      const snap = await getDocs(collection(db, 'lotteryRounds'));
+      roundsCache = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+      renderRounds();
+    }
+
+    function renderRounds() {
+      roundList.innerHTML = '';
+      roundsEmpty.hidden = roundsCache.length > 0;
+      roundsCache.forEach((round) => roundList.appendChild(renderRoundCard(round)));
+    }
+
+    function statusBadgeClass(status) {
+      return status === 'open' ? 'badge-open' : status === 'drawn' ? 'badge-drawn' : 'badge-draft';
+    }
+
+    function renderRoundCard(round) {
+      const total = round.seriesLetters.length * round.numbersPerSeries;
+      const card = document.createElement('article');
+      card.className = 'round-card';
+      card.innerHTML = `
+        <div class="round-top">
+          <span class="round-name">${round.name}</span>
+          <span class="badge-status ${statusBadgeClass(round.status)}">${round.status}</span>
+        </div>
+        <ul class="round-meta-list">
+          <li>Price <span>${Number(round.ticketPriceMMK).toLocaleString()} MMK</span></li>
+          <li>Draw date <span>${round.drawDate}</span></li>
+          <li>Series <span>${round.seriesLetters.join(', ')}</span></li>
+          <li>Per series <span>${round.numbersPerSeries.toLocaleString()}</span></li>
+          <li>Total tickets <span>${total.toLocaleString()}</span></li>
+        </ul>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary manage-btn">Manage round</button>
+        </div>
+        <div class="round-detail"></div>
+      `;
+
+      const manageBtn = card.querySelector('.manage-btn');
+      const detail = card.querySelector('.round-detail');
+      let loaded = false;
+
+      manageBtn.addEventListener('click', async () => {
+        const willOpen = !detail.classList.contains('open');
+        detail.classList.toggle('open', willOpen);
+        manageBtn.textContent = willOpen ? 'Hide round' : 'Manage round';
+        if (willOpen && !loaded) {
+          loaded = true;
+          await renderRoundDetail(round, detail, card);
+        }
+      });
+
+      return card;
+    }
+
+    async function renderRoundDetail(round, detail, card) {
+      detail.innerHTML = '<p class="panel-note">Loading round details…</p>';
+
+      if (!round.ticketsGenerated) {
+        const total = round.seriesLetters.length * round.numbersPerSeries;
+        detail.innerHTML = `
+          <p class="panel-note">This round's tickets haven't been generated yet.</p>
+          <p class="panel-note">Generating <strong style="color:var(--heading)">${total.toLocaleString()}</strong> tickets runs entirely in this browser tab and writes ${(total * 2).toLocaleString()} documents to Firestore. For a few thousand tickets this takes a moment; for tens of thousands it can take a few minutes — keep this tab open.</p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="genBtn">Generate ${total.toLocaleString()} tickets</button>
+          </div>
+          <p class="panel-note" id="genProgress"></p>
+        `;
+        detail.querySelector('#genBtn').addEventListener('click', async () => {
+          const btn = detail.querySelector('#genBtn');
+          const progress = detail.querySelector('#genProgress');
+          if (!confirm(`Generate ${total.toLocaleString()} tickets for "${round.name}"? This can't be undone.`)) return;
+          btn.disabled = true;
+          await generateTickets(round, (done) => {
+            progress.textContent = `Generating… ${done.toLocaleString()} / ${total.toLocaleString()}`;
+          });
+          round.ticketsGenerated = true;
+          round.status = 'open';
+          round.ticketCount = total;
+          await loadRounds();
+        });
+        return;
+      }
+
+      // Tickets exist — show stats, assign form, sales report, draw section.
+      detail.innerHTML = `
+        <div class="stat-grid" id="statGrid">
+          <div class="stat-tile"><div class="num">…</div><div class="lbl">unassigned</div></div>
+          <div class="stat-tile"><div class="num">…</div><div class="lbl">assigned</div></div>
+          <div class="stat-tile"><div class="num">…</div><div class="lbl">sold</div></div>
+        </div>
+
+        <div class="sub-panel">
+          <h3>Assign tickets to an agent</h3>
+          <div class="field-row">
+            <div class="field">
+              <label>Agent</label>
+              <select class="assign-agent"></select>
+            </div>
+            <div class="field">
+              <label>Series</label>
+              <select class="assign-series">${round.seriesLetters.map((s) => `<option value="${s}">${s}</option>`).join('')}</select>
+            </div>
+            <div class="field">
+              <label>How many (max 200 per click)</label>
+              <input type="number" class="assign-count" min="1" max="200" value="10">
+            </div>
+          </div>
+          <div class="btn-row"><button type="button" class="btn btn-primary assign-btn">Assign</button></div>
+          <p class="panel-note assign-status"></p>
+        </div>
+
+        <div class="sub-panel">
+          <h3>Sales &amp; payouts</h3>
+          <div class="btn-row"><button type="button" class="btn btn-secondary report-btn">Load sales report</button></div>
+          <div class="report-area"></div>
+        </div>
+
+        <div class="sub-panel draw-panel"></div>
+      `;
+
+      const agentSelect = detail.querySelector('.assign-agent');
+      const activeAgents = agentsCache.filter((a) => a.active);
+      agentSelect.innerHTML = activeAgents.length
+        ? activeAgents.map((a) => `<option value="${a.email}">${a.name} (${a.email})</option>`).join('')
+        : '<option value="">No active agents — invite one above</option>';
+
+      detail.querySelector('.assign-btn').addEventListener('click', async () => {
+        const btn = detail.querySelector('.assign-btn');
+        const statusEl = detail.querySelector('.assign-status');
+        const agentEmail = agentSelect.value;
+        const agent = agentsCache.find((a) => a.email === agentEmail);
+        const series = detail.querySelector('.assign-series').value;
+        const count = Math.min(200, Math.max(1, Number(detail.querySelector('.assign-count').value) || 0));
+        if (!agent) { statusEl.textContent = 'Choose an agent first.'; return; }
+        btn.disabled = true;
+        statusEl.textContent = 'Assigning…';
+        try {
+          const assigned = await assignTickets(round.id, series, agent.email, agent.name, count);
+          statusEl.textContent = assigned === 0
+            ? `No unassigned tickets left in series ${series}.`
+            : `Assigned ${assigned} ticket(s) in series ${series} to ${agent.name}.`;
+          await refreshStats();
+        } catch (err) {
+          statusEl.textContent = 'Could not assign (' + (err.code || err.message) + ').';
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      detail.querySelector('.report-btn').addEventListener('click', () => loadSalesReport(round, detail.querySelector('.report-area')));
+
+      async function refreshStats() {
+        const statGrid = detail.querySelector('#statGrid');
+        const [unassigned, assigned, sold] = await Promise.all([
+          countTickets(round.id, 'unassigned'),
+          countTickets(round.id, 'assigned'),
+          countTickets(round.id, 'sold'),
+        ]);
+        statGrid.innerHTML = `
+          <div class="stat-tile"><div class="num">${unassigned}</div><div class="lbl">unassigned</div></div>
+          <div class="stat-tile"><div class="num">${assigned}</div><div class="lbl">assigned</div></div>
+          <div class="stat-tile"><div class="num">${sold}</div><div class="lbl">sold</div></div>
+        `;
+      }
+      await refreshStats();
+
+      renderDrawPanel(round, detail.querySelector('.draw-panel'));
+    }
+
+    async function countTickets(roundId, status) {
+      const q = query(collection(db, 'lotteryTickets'), where('roundId', '==', roundId), where('status', '==', status));
+      const snap = await getCountFromServer(q);
+      return snap.data().count;
+    }
+
+    async function generateTickets(round, onProgress) {
+      const total = round.seriesLetters.length * round.numbersPerSeries;
+      let done = 0;
+      for (const series of round.seriesLetters) {
+        let batch = writeBatch(db);
+        let inBatch = 0;
+        for (let n = 1; n <= round.numbersPerSeries; n++) {
+          const code = series + String(n).padStart(5, '0');
+          const ticketId = `${round.id}_${code}`;
+          const base = { roundId: round.id, code, series, number: n, agentId: null, status: 'unassigned' };
+          batch.set(doc(db, 'lotteryTickets', ticketId), {
+            ...base, agentName: null, buyerName: null, buyerPhone: null,
+            paymentMethod: null, reference: null, soldAt: null,
+            isWinner: false, tier: null, createdAt: serverTimestamp(),
+          });
+          batch.set(doc(db, 'ticketStatus', ticketId), {
+            ...base, isWinner: false, tier: null, updatedAt: serverTimestamp(),
+          });
+          inBatch += 2;
+          done++;
+          if (inBatch >= 400) {
+            await batch.commit();
+            batch = writeBatch(db);
+            inBatch = 0;
+            onProgress(done);
+          }
+        }
+        if (inBatch > 0) {
+          await batch.commit();
+          onProgress(done);
+        }
+      }
+      await updateDoc(doc(db, 'lotteryRounds', round.id), {
+        ticketsGenerated: true, status: 'open', ticketCount: total,
+      });
+    }
+
+    async function assignTickets(roundId, series, agentEmail, agentName, count) {
+      const q = query(
+        collection(db, 'lotteryTickets'),
+        where('roundId', '==', roundId),
+        where('series', '==', series),
+        where('status', '==', 'unassigned'),
+        limit(count)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return 0;
+      const batch = writeBatch(db);
+      snap.forEach((d) => {
+        batch.update(doc(db, 'lotteryTickets', d.id), { status: 'assigned', agentId: agentEmail, agentName });
+        batch.update(doc(db, 'ticketStatus', d.id), { status: 'assigned', agentId: agentEmail });
+      });
+      await batch.commit();
+      return snap.size;
+    }
+
+    async function loadSalesReport(round, container) {
+      container.innerHTML = '<p class="panel-note">Loading…</p>';
+      const q = query(collection(db, 'agentSales'), where('roundId', '==', round.id));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        container.innerHTML = '<p class="panel-note">No sales recorded yet for this round.</p>';
+        return;
+      }
+      const rows = snap.docs.map((d) => d.data()).sort((a, b) => (b.ticketsSold || 0) - (a.ticketsSold || 0));
+      const totalTickets = rows.reduce((sum, r) => sum + (r.ticketsSold || 0), 0);
+      const totalRevenue = rows.reduce((sum, r) => sum + (r.revenueMMK || 0), 0);
+      container.innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>Agent</th><th>Tickets sold</th><th>Revenue collected</th></tr></thead>
+          <tbody>
+            ${rows.map((r) => `<tr><td>${r.agentName || r.agentId}</td><td>${r.ticketsSold || 0}</td><td>${(r.revenueMMK || 0).toLocaleString()} MMK</td></tr>`).join('')}
+          </tbody>
+        </table>
+        <p class="panel-note" style="margin-top:10px;">Total: ${totalTickets} tickets · ${totalRevenue.toLocaleString()} MMK collected by agents (to be settled via KPay / WavePay / MM Bank / THB Bank).</p>
+      `;
+    }
+
+    /* ---------------- Draw ---------------- */
+
+    function randomCode(round, taken) {
+      let code;
+      do {
+        const series = round.seriesLetters[Math.floor(Math.random() * round.seriesLetters.length)];
+        const n = 1 + Math.floor(Math.random() * round.numbersPerSeries);
+        code = series + String(n).padStart(5, '0');
+      } while (taken.has(code));
+      return code;
+    }
+
+    function renderDrawPanel(round, panel) {
+      if (round.status === 'drawn') {
+        panel.innerHTML = '<h3>Draw results</h3><div class="winners-area"><p class="panel-note">Loading winners…</p></div>';
+        loadWinners(round, panel.querySelector('.winners-area'));
+        return;
+      }
+
+      panel.innerHTML = `
+        <h3>Run the draw</h3>
+        <p class="panel-note">Enter or randomize a winning code for each prize tier, then finalize. This is permanent for this round.</p>
+        <div class="tier-rows"></div>
+        <div class="btn-row"><button type="button" class="btn btn-gold finalize-btn">Finalize draw</button></div>
+        <p class="form-error draw-error" hidden></p>
+      `;
+      const tierRows = panel.querySelector('.tier-rows');
+      round.prizeTiers.forEach((tier) => {
+        const row = document.createElement('div');
+        row.className = 'tier-draw-row';
+        row.dataset.label = tier.label;
+        row.innerHTML = `
+          <div>${tier.label} <span style="color:var(--muted)">(${Number(tier.amount).toLocaleString()} MMK)</span></div>
+          <input type="text" class="tier-code" placeholder="e.g. A04213" maxlength="6">
+          <button type="button" class="btn btn-secondary randomize-btn">Randomize</button>
+        `;
+        row.querySelector('.randomize-btn').addEventListener('click', () => {
+          const taken = new Set([...tierRows.querySelectorAll('.tier-code')].map((i) => i.value.toUpperCase()).filter(Boolean));
+          row.querySelector('.tier-code').value = randomCode(round, taken);
+        });
+        tierRows.appendChild(row);
+      });
+
+      panel.querySelector('.finalize-btn').addEventListener('click', async () => {
+        const errorEl = panel.querySelector('.draw-error');
+        errorEl.hidden = true;
+        const winningCodes = [...tierRows.children].map((row) => ({
+          tier: row.dataset.label,
+          code: row.querySelector('.tier-code').value.trim().toUpperCase(),
+        }));
+        if (winningCodes.some((w) => !/^[A-Z]\d{5}$/.test(w.code))) {
+          errorEl.textContent = 'Every tier needs a valid code (one letter + 5 digits), e.g. A04213.';
+          errorEl.hidden = false;
+          return;
+        }
+        if (!confirm('Finalize the draw for "' + round.name + '"? This cannot be undone.')) return;
+        panel.querySelector('.finalize-btn').disabled = true;
+        try {
+          await finalizeDraw(round, winningCodes);
+          round.status = 'drawn';
+          round.winningCodes = winningCodes;
+          renderDrawPanel(round, panel);
+        } catch (err) {
+          errorEl.textContent = 'Could not finalize draw (' + (err.code || err.message) + ').';
+          errorEl.hidden = false;
+          panel.querySelector('.finalize-btn').disabled = false;
+        }
+      });
+    }
+
+    async function finalizeDraw(round, winningCodes) {
+      const batch = writeBatch(db);
+      for (const { code } of winningCodes) {
+        const ticketId = `${round.id}_${code}`;
+        const snap = await getDoc(doc(db, 'lotteryTickets', ticketId));
+        if (snap.exists() && snap.data().status === 'sold') {
+          const tier = winningCodes.find((w) => w.code === code).tier;
+          batch.update(doc(db, 'lotteryTickets', ticketId), { isWinner: true, tier });
+          batch.update(doc(db, 'ticketStatus', ticketId), { isWinner: true, tier });
+        }
+      }
+      batch.update(doc(db, 'lotteryRounds', round.id), { status: 'drawn', winningCodes, drawnAt: serverTimestamp() });
+      await batch.commit();
+    }
+
+    async function loadWinners(round, container) {
+      const rows = [];
+      for (const { tier, code } of round.winningCodes) {
+        const snap = await getDoc(doc(db, 'lotteryTickets', `${round.id}_${code}`));
+        if (snap.exists() && snap.data().status === 'sold') {
+          const t = snap.data();
+          rows.push({ tier, code, buyerName: t.buyerName, buyerPhone: t.buyerPhone, agentName: t.agentName, agentId: t.agentId });
+        } else {
+          rows.push({ tier, code, notSold: true });
+        }
+      }
+      container.innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>Tier</th><th>Code</th><th>Buyer</th><th>Agent</th></tr></thead>
+          <tbody>
+            ${rows.map((r) => r.notSold
+              ? `<tr><td>${r.tier}</td><td class="win">${r.code}</td><td colspan="2" style="color:var(--muted)">No one bought this ticket</td></tr>`
+              : `<tr><td>${r.tier}</td><td class="win">${r.code}</td><td>${r.buyerName || '—'} ${r.buyerPhone ? '(' + r.buyerPhone + ')' : ''}</td><td>${r.agentName || r.agentId}</td></tr>`
+            ).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  </script>
+</body>
+</html>

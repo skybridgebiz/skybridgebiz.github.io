@@ -8,6 +8,17 @@ service cloud.firestore {
              ];
     }
 
+    // An "agent" is identified purely by their login email matching an
+    // agents/{email} document that admin created for them (see
+    // lottery-admin.html) — no uid linking step needed since the doc ID
+    // *is* the email a signed-in user already carries on their auth token.
+    function isAgentEmail(email) {
+      return request.auth != null &&
+             request.auth.token.email == email &&
+             exists(/databases/$(database)/documents/agents/$(email)) &&
+             get(/databases/$(database)/documents/agents/$(email)).data.active == true;
+    }
+
     // Each customer's subscription record, keyed by their auth uid.
     match /customers/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
@@ -37,6 +48,69 @@ service cloud.firestore {
                     && request.resource.data.status == 'pending';
 
       allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // Lottery: a round's config (name, ticket price, series letters, prize
+    // tiers, draw date, winning codes once drawn). No personal data lives
+    // here, so it's fine to let anyone read it (the public lottery.html
+    // page shows current rounds); only admin manages it.
+    match /lotteryRounds/{roundId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Lottery: agent directory, keyed by the agent's login email. Admin
+    // invites an agent by creating agents/{their email}; the agent simply
+    // signs in with that same email (see login.html / signup.html) and
+    // isAgentEmail() above matches them to it automatically.
+    match /agents/{email} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.token.email == email);
+      allow write: if isAdmin();
+    }
+
+    // Lottery: full ticket records, including the buyer's name/phone.
+    // Only admin and the one agent a ticket is assigned to may read it.
+    // An agent may only flip their own ticket from "assigned" to "sold"
+    // when recording a sale — they can never reassign it, edit someone
+    // else's ticket, or change its code/round.
+    match /lotteryTickets/{ticketId} {
+      allow read: if isAdmin() || isAgentEmail(resource.data.agentId);
+      allow create: if isAdmin();
+      allow update: if isAdmin() ||
+                    (isAgentEmail(resource.data.agentId) &&
+                     resource.data.status == 'assigned' &&
+                     request.resource.data.status == 'sold' &&
+                     request.resource.data.agentId == resource.data.agentId &&
+                     request.resource.data.roundId == resource.data.roundId &&
+                     request.resource.data.code == resource.data.code);
+      allow delete: if false;
+    }
+
+    // Lottery: a public-safe mirror of each ticket (status/winner info only,
+    // never the buyer's name or phone) so anyone can look up a ticket by
+    // code on lottery.html without exposing other buyers' personal data.
+    match /ticketStatus/{ticketId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() ||
+                    (isAgentEmail(resource.data.agentId) &&
+                     resource.data.status == 'assigned' &&
+                     request.resource.data.status == 'sold' &&
+                     request.resource.data.agentId == resource.data.agentId &&
+                     request.resource.data.roundId == resource.data.roundId &&
+                     request.resource.data.code == resource.data.code);
+      allow delete: if false;
+    }
+
+    // Lottery: small per-round-per-agent running totals (tickets sold,
+    // revenue collected), updated with increment() at sale time so the
+    // admin "sales & payouts" report is a handful of cheap reads instead
+    // of scanning every sold ticket.
+    match /agentSales/{statId} {
+      allow read: if isAdmin() || isAgentEmail(resource.data.agentId);
+      allow create: if isAdmin() || isAgentEmail(request.resource.data.agentId);
+      allow update: if isAdmin() || isAgentEmail(request.resource.data.agentId);
       allow delete: if false;
     }
   }
