@@ -239,16 +239,22 @@
         return;
       }
       myEmail = user.email;
-      const agentSnap = await getDoc(doc(db, 'agents', myEmail));
-      if (!agentSnap.exists() || agentSnap.data().active !== true) {
+      try {
+        const agentSnap = await getDoc(doc(db, 'agents', myEmail));
+        if (!agentSnap.exists() || agentSnap.data().active !== true) {
+          loadingState.hidden = true;
+          deniedState.hidden = false;
+          return;
+        }
+        document.getElementById('agentNameLabel').textContent = agentSnap.data().name || myEmail;
+        await loadMyRounds();
         loadingState.hidden = true;
-        deniedState.hidden = false;
-        return;
+        agentContent.hidden = false;
+      } catch (err) {
+        loadingState.textContent = 'Could not load agent data (' + (err.code || err.message) + '). '
+          + 'If this is the first time using the lottery feature, make sure the updated firestore.rules '
+          + 'has been deployed to your Firebase project — merging a PR here does not deploy Firestore rules.';
       }
-      document.getElementById('agentNameLabel').textContent = agentSnap.data().name || myEmail;
-      await loadMyRounds();
-      loadingState.hidden = true;
-      agentContent.hidden = false;
     });
 
     signOutBtn.addEventListener('click', async () => {

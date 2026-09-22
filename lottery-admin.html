@@ -348,10 +348,16 @@
         return;
       }
       currentAdminEmail = user.email;
-      await loadAgents();
-      await loadRounds();
-      loadingState.hidden = true;
-      adminContent.hidden = false;
+      try {
+        await loadAgents();
+        await loadRounds();
+        loadingState.hidden = true;
+        adminContent.hidden = false;
+      } catch (err) {
+        loadingState.textContent = 'Could not load lottery data (' + (err.code || err.message) + '). '
+          + 'If this is the first time using the lottery feature, make sure the updated firestore.rules '
+          + 'has been deployed to your Firebase project — merging a PR here does not deploy Firestore rules.';
+      }
     });
 
     signOutBtn.addEventListener('click', async () => {
